@@ -455,8 +455,46 @@
 
 
     <!-- 评价指标体系 -->
-    <div class="criteria-matrix">
-        <h3>评价指标权重分布</h3>
+<div class="criteria-matrix">
+    <h3>评价指标体系—层次分析法</h3>
+            <div class="model-structure">
+        <h4>模型结构</h4>
+        <p><strong>目标层：</strong>选择最优的475路公交优化方案</p>
+        <p><strong>准则层：</strong>服务性、经济性、安全性、可持续性</p>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>准则</th>
+                    <th>相应指标</th>
+                    <th>数据来源</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>服务性</td>
+                    <td>平均候车时间（分钟）<br>站点覆盖率（%）<br>高峰时段运行速度（km/h）</td>
+                    <td>公交GPS数据、乘客调研</td>
+                </tr>
+                <tr>
+                    <td>经济性</td>
+                    <td>初期投资成本（万元）<br>单公里运营成本（元/km）<br>政府补贴依赖度（%）</td>
+                    <td>财务预算、运营报表</td>
+                </tr>
+                <tr>
+                    <td>安全性</td>
+                    <td>满载率（%）<br>事故率（次/万公里）<br>应急响应时间（分钟）</td>
+                    <td>交通监控数据、事故记录</td>
+                </tr>
+                <tr>
+                    <td>可持续性</td>
+                    <td>碳排放量（吨/年）<br>新能源车辆占比（%）<br>资源利用率（客位·km/车）</td>
+                    <td>环保监测、车辆调度系统</td>
+                </tr>
+            </tbody>
+        </table>
+
+                <h4>评价指标权重分布</h4>
         <div class="matrix-grid">
             <div class="matrix-item" style="--weight: 0.4;">
                 <div class="matrix-progress"></div>
@@ -480,7 +518,28 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
+
+<style>
+/* 新增样式 */
+.criteria-matrix {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.model-structure,
+.weight-distribution {
+    margin-bottom: 2rem;
+}
+
+.weight-distribution h5 {
+    color: var(--primary-color);
+    margin: 1rem 0;
+}
+</style>
 
 <style>
 /* 方案设计思路专用样式 */
@@ -675,7 +734,7 @@
             
             <div class="visual-section">
                 <div class="visual-card">
-                    <h3>方案对比雷达图</h3>
+                    <h3>方案限制因素雷达图</h3>
                     <div class="chart-container">
                         <canvas id="limitationRadarChart"></canvas>
                         <div class="chart-legend">
@@ -713,20 +772,21 @@
         </div>
 
         <script>
+
             // 雷达图数据
             const radarData = {
-                labels: ['政策风险', '经济成本', '服务影响', '实施难度', '可持续性'],
+                labels: ['政策风险', '经济限制', '服务短板', '可持续矛盾'],
                 datasets: [
                     {
                         label: '方案一',
-                        data: [75, 80, 65, 70, 60],
+                        data: [75, 80, 60, 35],
                         backgroundColor: 'rgba(62, 149, 205, 0.2)',
                         borderColor: '#3e95cd',
                         pointBackgroundColor: '#3e95cd'
                     },
                     {
                         label: '方案二',
-                        data: [85, 90, 75, 80, 70],
+                        data: [75, 40, 60, 65],
                         backgroundColor: 'rgba(142, 94, 162, 0.2)',
                         borderColor: '#8e5ea2',
                         pointBackgroundColor: '#8e5ea2'
