@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重庆市475路公交优化方案设计</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin: 2.5rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(66, 133, 244, 0.2);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            color: var(--dark-color);
+            margin: 2rem 0 1rem;
+        }
+        
+        .visual-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .visual-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.75rem;
+            transition: var(--transition);
+        }
+        
+        .visual-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 350px;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+        
+        .map-container {
+            width: 100%;
+            height: 700px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin: 2.5rem 0;
+            box-shadow: var(--box-shadow);
+            position: relative;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            background: rgba(255,255,255,0.95);
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            font-size: 1.1rem;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+        
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        
+        .section {
+            margin-bottom: 3.5rem;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .tab:hover {
+            color: var(--dark-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .highlight {
+            background-color: rgba(251, 188, 5, 0.15);
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .highlight strong {
+            color: var(--dark-color);
+        }
+        
+        ul {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .data-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .data-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: rgba(248, 249, 250, 0.5);
+        }
+        
+        .data-table tr:hover {
+            background-color: rgba(66, 133, 244, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .visual-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-container {
+                height: 450px;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-container {
+                height: 350px;
+            }
+            
+            .tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>475路公交优化方案设计</h1>
+            <p class="subtitle">重庆九龙坡区至南岸区跨区公交线路</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- 线路概览 -->
+        <section class="section">
+            <h2>线路概览</h2>
+            <div class="map-container">
+                <iframe src="https://map.baidu.com/search/475%E8%B7%AF/@11858822.03710891,3419382.8600000003,14.57z?querytype=s&da_src=shareurl&wd=475%E8%B7%AF&c=132&src=0&wd2=%E9%87%8D%E5%BA%86%E5%B8%82&pn=0&sug=1&l=13&b=(11814773,3399871;11863669,3423487)&from=webmap&biz_forward=%7B%22scaler%22:2,%22styles%22:%22pl%22%7D&sug_forward=1b7d315c7d51c145374aae33&device_ratio=2" 
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                <div class="map-overlay">
+                    <strong>475路公交线路</strong>
+                    <p>九龙坡区 ↔ 南岸区 | 16站 | 13.4公里</p>
+                </div>
+            </div>
+            
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value">16</div>
+                    <div class="metric-label">站点数量</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">13.4km</div>
+                    <div class="metric-label">线路长度</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">2元</div>
+                    <div class="metric-label">票价</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">6:30-20:30</div>
+                    <div class="metric-label">运营时间</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="chart-container">
+            <div id="passengerFlowChart" style="height:400px;"></div>
+        </div>
+    
+        <!-- 现状分析 -->
+        <div class="section">
+            <h2>现状分析</h2>
+            
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('tab1')">客流特征分析</div>
+                <div class="tab" onclick="switchTab('tab2')">运营问题分析</div>
+            </div>
+            
+            <!-- 客流特征分析 -->
+            <div id="tab1" class="tab-content active">
+                <h3>客流时间分布特征</h3>
+                
+                <div class="chart-container">
+                    <div class="chart-title">工作日客流峰谷分布</div>
+                    <canvas id="timeDistributionChart"></canvas>
+                </div>
+                
+                <div class="highlight">
+                    <strong>分析结论：</strong>工作日客流呈现"双峰单谷"特征，早高峰(7:00-9:00)和晚高峰(17:00-19:00)客流集中，平峰期客流平缓。高峰时段杨家坪、四公里等站点客流激增，与城市通勤、商业活动及高校作息高度吻合。
+                </div>
+                
+                <h3>客流空间分布特征</h3>
+                
+                <div class="chart-container">
+                    <div class="chart-title">高峰期上下车人数分布</div>
+                    <canvas id="boardingChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">断面客流量分布</div>
+                    <canvas id="sectionFlowChart"></canvas>
+                </div>
+                
+                <div class="highlight">
+                    <strong>核心发现：</strong>
+                    <ul>
+                        <li>上车客流集中于九龙坡区核心站点(轨道大堰站、谢家湾正街南段等)，多为住宅区与商圈</li>
+                        <li>下车客流集中于南岸区交通枢纽及居住区(四公里-七公里)，多为轨道换乘站或大型居住区</li>
+                        <li>核心拥挤区间：麦德龙-海峡路口-四公里，晚高峰返程客流集中</li>
+                        <li>客流速增区间：谢家湾正街南段-鹅公岩南桥头-轨道海峡路，跨区客流增长明显</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 运营问题分析 -->
+            <div id="tab2" class="tab-content">
+                <h3>主要运营问题</h3>
+                
+                <div class="chart-container">
+                    <div class="chart-title">满载率对比分析</div>
+                    <canvas id="loadRateChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">运行速度对比</div>
+                    <canvas id="speedChart"></canvas>
+                </div>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>问题类型</th>
+                            <th>具体表现</th>
+                            <th>影响</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>高峰期局部拥挤</td>
+                            <td>核心区间高峰期满载率达71.25%-80%，上车人数多</td>
+                            <td>影响乘车体验，存在安全隐患</td>
+                        </tr>
+                        <tr>
+                            <td>高峰期行驶速度慢</td>
+                            <td>毛线沟-动物园等部分区间时速低于15km/h</td>
+                            <td>影响公交准点率，增加乘客出行时间</td>
+                        </tr>
+                        <tr>
+                            <td>平峰期运力利用率低</td>
+                            <td>平峰期满载率仅2.50%-31.25%，客流整体平缓</td>
+                            <td>车辆资源浪费，运营成本较高</td>
+                        </tr>
+                        <tr>
+                            <td>站点上下客集中</td>
+                            <td>上车集中于九龙坡区起点段，下车集中于南岸区末端</td>
+                            <td>起点段上车压力大，末端下车组织难度高</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>   
+        
+        <!-- 方案设计思路 - 可视化版本 -->
+<div class="section">
+    <h2>方案设计思路</h2>
+    
+      <h3>设计方案</h3>
+            <div class="visual-card">
+                <h4>方案一：线路走向优化+高峰区间快线</h4>
+                <ul>
+                    <li><strong>线路走向调整：</strong>绕开毛线沟-动物园-杨家坪西郊段（原高峰时速仅12.64 km/h），改经直港大道-九滨路，缩短非直线系数（从1.86降至1.5）</li>
+                    <li><strong>新增轨道接驳站：</strong>在九滨路增设"轨道谢家湾站"换乘点，提升轨道与公交衔接效率</li>
+                    <li><strong>高峰区间快线：</strong>在麦德龙-四公里段（高峰满载率80%）开通直达快车，仅停靠核心站点</li>
+                </ul>
+            </div>
+            
+            <div class="visual-card">
+                <h4>方案二：线路拆分+微循环接驳</h4>
+                <ul>
+                    <li><strong>线路拆分：</strong>将475路拆分为A线（轨道大堰站-四公里）和B线（四公里-七公里）</li>
+                    <li><strong>微循环线路：</strong>开通四公里枢纽至海峡路商圈的微循环线（3公里，8座电动巴士）</li>
+                </ul>
+            </div>
+
+
+    <!-- 评价指标体系 -->
+    <div class="criteria-matrix">
+        <h3>评价指标权重分布</h3>
+        <div class="matrix-grid">
+            <div class="matrix-item" style="--weight: 0.4;">
+                <div class="matrix-progress"></div>
+                <span>服务性 (40%)</span>
+                <div class="sub-items">候车时间(50%)<br>站点覆盖率(30%)<br>运行速度(20%)</div>
+            </div>
+            <div class="matrix-item" style="--weight: 0.3;">
+                <div class="matrix-progress"></div>
+                <span>安全性 (30%)</span>
+                <div class="sub-items">满载率(55%)<br>事故率(30%)<br>应急响应(15%)</div>
+            </div>
+            <div class="matrix-item" style="--weight: 0.2;">
+                <div class="matrix-progress"></div>
+                <span>经济性 (20%)</span>
+                <div class="sub-items">初期投资(60%)<br>运营成本(25%)<br>补贴依赖(15%)</div>
+            </div>
+            <div class="matrix-item" style="--weight: 0.1;">
+                <div class="matrix-progress"></div>
+                <span>可持续性 (10%)</span>
+                <div class="sub-items">碳排放(50%)<br>新能源占比(30%)<br>资源利用(20%)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 方案设计思路专用样式 */
+.visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.chart-container {
+    padding: 15px;
+}
+.comparison-chart {
+    height: 180px;
+    margin: 15px 0;
+}
+.chart-bar {
+    height: 36px;
+    margin: 10px 0;
+    background: linear-gradient(90deg, var(--color) calc(var(--value) * 100%), #f5f5f5 0);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+.legend-item::before {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background-color: var(--color);
+    margin-right: 6px;
+    border-radius: 2px;
+}
+.chart-note {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+}
+
+.route-map {
+    height: 140px;
+    margin: 15px 0;
+    position: relative;
+}
+.map-line {
+    position: absolute;
+    height: 3px;
+    width: 90%;
+    left: 5%;
+}
+.map-line::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translateY(-3px);
+}
+.map-line.original {
+    top: 30%;
+    color: #888;
+}
+.map-line.optimized {
+    top: 70%;
+    color: #E15759;
+}
+.map-line[data-dots="3"]::after {
+    left: 20%;
+}
+.map-line[data-dots="3"]::before {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    left: 60%;
+    transform: translateY(-3px);
+}
+.map-line[data-dots="3"]::after {
+    left: 20%;
+}
+.map-line[data-dots="2"]::after {
+    left: 30%;
+}
+.map-labels {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+}
+.map-note {
+    font-size: 0.85em;
+    color: #666;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.criteria-matrix {
+    margin-top: 30px;
+}
+.matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.matrix-item {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.matrix-progress {
+    height: 8px;
+    background: linear-gradient(90deg, #76B7B2 calc(var(--weight) * 100%), #eee 0);
+    margin: 10px 0;
+    border-radius: 4px;
+}
+.sub-items {
+    font-size: 0.8em;
+    color: #555;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+</style>
+
+        <!-- 优化方案对比 -->
+        <div class="section">
+            <h2>优化方案对比</h2>
+            
+            <div class="chart-container">
+                <div class="chart-title">方案综合评价雷达图</div>
+                <canvas id="radarChart"></canvas>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>评价维度</th>
+                        <th>方案一：线路优化+高峰快线</th>
+                        <th>方案二：线路拆分+微循环</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>服务性评分</td>
+                        <td>4.5 (快线缩短间隔至8分钟)</td>
+                        <td>3.0 (换乘增加等待时间)</td>
+                    </tr>
+                    <tr>
+                        <td>安全性评分</td>
+                        <td>4.3 (核心段满载率降至50%)</td>
+                        <td>3.2 (主线路满载率仍达70%)</td>
+                    </tr>
+                    <tr>
+                        <td>经济性评分</td>
+                        <td>2.6 (初期投资200万元)</td>
+                        <td>3.95 (初期投资60万元)</td>
+                    </tr>
+                    <tr>
+                        <td>可持续性评分</td>
+                        <td>3.6 (燃油车年排放120吨)</td>
+                        <td>4.9 (电动巴士零排放)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight">
+                <strong>方案一优势：</strong>服务性和安全性表现突出，能有效缓解高峰拥挤问题<br>
+                <strong>方案二优势：</strong>经济性和可持续性表现优异，初期投资低且环保效益显著
+            </div>
+        </div>
+
+                <!-- 局限性分析 -->
+        <div class="section">
+            <h2>局限性分析</h2>
+            
+            <div class="visual-section">
+                <div class="visual-card">
+                    <h3>方案对比雷达图</h3>
+                    <div class="chart-container">
+                        <canvas id="limitationRadarChart"></canvas>
+                        <div class="chart-legend">
+                            <span class="legend-item" style="color:#3e95cd">● 方案一</span>
+                            <span class="legend-item" style="color:#8e5ea2">● 方案二</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="visual-card">
+                    <h3>关键限制指标</h3>
+                    <div class="chart-container">
+                        <canvas id="limitationBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight compact">
+                <strong>核心发现：</strong>
+                <div class="icon-list">
+                    <div class="icon-item">
+                        <span class="material-icons"></span>
+                        <span>两方案实施周期均>6个月</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons"></span>
+                        <span>两方案均需多部门协作（交通/财政/环保）</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons"></span>
+                        <span>财政依赖度：方案二(50%) > 方案一(30%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // 雷达图数据
+            const radarData = {
+                labels: ['政策风险', '经济成本', '服务影响', '实施难度', '可持续性'],
+                datasets: [
+                    {
+                        label: '方案一',
+                        data: [75, 80, 65, 70, 60],
+                        backgroundColor: 'rgba(62, 149, 205, 0.2)',
+                        borderColor: '#3e95cd',
+                        pointBackgroundColor: '#3e95cd'
+                    },
+                    {
+                        label: '方案二',
+                        data: [85, 90, 75, 80, 70],
+                        backgroundColor: 'rgba(142, 94, 162, 0.2)',
+                        borderColor: '#8e5ea2',
+                        pointBackgroundColor: '#8e5ea2'
+                    }
+                ]
+            };
+
+            // 柱状图数据
+            const barData = {
+                labels: ['协调部门数', '初期投资(百万)', '换乘时间(分)', '空驶率'],
+                datasets: [
+                    {
+                        label: '方案一',
+                        backgroundColor: '#3e95cd',
+                        data: [3, 2, 5, 15]
+                    },
+                    {
+                        label: '方案二',
+                        backgroundColor: '#8e5ea2',
+                        data: [4, 1.5, 15, 30]
+                    }
+                ]
+            };
+
+            // 初始化图表
+            document.addEventListener('DOMContentLoaded', function() {
+                new Chart(document.getElementById('limitationRadarChart'), {
+                    type: 'radar',
+                    data: radarData,
+                    options: {
+                        scale: { ticks: { beginAtZero: true, max: 100 } }
+                    }
+                });
+                
+                new Chart(document.getElementById('limitationBarChart'), {
+                    type: 'bar',
+                    data: barData,
+                    options: {
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            function switchTab(tabId) {
+                // 隐藏所有内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // 取消所有标签的活动状态
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // 显示选中的内容
+                document.getElementById(tabId).classList.add('active');
+                
+                // 设置选中标签的活动状态
+                event.currentTarget.classList.add('active');
+                
+                // 重新渲染图表以适应容器大小变化
+                renderCharts();
+            }
+            
+            function renderCharts() {
+                // 时间分布图表（使用真实数据）
+                const timeCtx = document.getElementById('timeDistributionChart').getContext('2d');
+                new Chart(timeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
+                        datasets: [{
+                            label: '客流人数',
+                            data: [80, 120, 420, 650, 480, 320, 280, 250, 230, 220, 240, 280, 520, 680, 450, 220, 100],
+                            borderColor: '#4a89dc',
+                            backgroundColor: 'rgba(74, 137, 220, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '客流量(人/小时)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '时间'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 上下车人数图表（使用真实数据）
+                const boardingCtx = document.getElementById('boardingChart').getContext('2d');
+                new Chart(boardingCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['轨道大堰站(西行)', '轨道大堰站(东行)', '毛线沟', '动物园', '杨家坪西郊', '谢家湾正街南段', '鹅公岩南桥头', '轨道海峡路', '海峡路', '麦德龙', '海峡路口', '四公里', '五公里', '轨道六公里', '六公里', '七公里'],
+                        datasets: [
+                            {
+                                label: '上车人数(高峰)',
+                                data: [5,5,1,3,7,11,6,10,6,8,12,4,9,0,0,0],
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: 'rgba(231, 76, 60, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: '下车人数(高峰)',
+                                data: [0,0,0,0,0,0,0,3,2,0,5,26,12,15,13,11],
+                                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                                borderColor: 'rgba(46, 204, 113, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '人数(人/高峰小时)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '站点'
+                                },
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 断面客流量图表（使用真实数据）
+                const sectionCtx = document.getElementById('sectionFlowChart').getContext('2d');
+                new Chart(sectionCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['轨道大堰站(西行)-轨道大堰站(东行)', '轨道大堰站(东行)-毛线沟', '毛线沟-动物园', '动物园-杨家坪西郊', '杨家坪西郊-谢家湾', '谢家湾-鹅公岩南桥头', '鹅公岩南桥头-轨道海峡路', '轨道海峡路-海峡路', '海峡路-麦德龙', '麦德龙-海峡路口', '海峡路口-四公里', '四公里-五公里', '五公里-轨道六公里', '轨道六公里-六公里', '六公里-七公里'],
+                        datasets: [{
+                            label: '断面客流量(高峰)',
+                            data: [5,10,11,14,21,32,38,45,49,57,64,42,39,24,11],
+                            borderColor: '#8e44ad',
+                            backgroundColor: 'rgba(142, 68, 173, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '客流量(人/高峰小时)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '  '
+                                },
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        },
+                        plugins: {
+                            annotation: {
+                                annotations: {
+                                    box1: {
+                                        type: 'box',
+                                        xMin: '麦德龙-海峡口',
+                                        xMax: '海峡口-四公里',
+                                        backgroundColor: 'rgba(255, 99, 71, 0.25)',
+                                        borderColor: 'rgba(255, 99, 71, 0.5)',
+                                        borderWidth: 1,
+                                        label: {
+                                            content: '核心拥挤区间',
+                                            enabled: true,
+                                            position: 'top'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 满载率对比图表（使用真实数据）
+                const loadCtx = document.getElementById('loadRateChart').getContext('2d');
+                new Chart(loadCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['轨道大堰站(西行)-轨道大堰站(东行)', '轨道大堰站(东行)-毛线沟', '毛线沟-动物园', '动物园-杨家坪西郊', '杨家坪西郊-谢家湾', '谢家湾-鹅公岩南桥头', '鹅公岩南桥头-轨道海峡路', '轨道海峡路-海峡路', '海峡路-麦德龙', '麦德龙-海峡路口', '海峡路口-四公里', '四公里-五公里', '五公里-轨道六公里', '轨道六公里-六公里', '六公里-七公里'],
+                        datasets: [
+                            {
+                                label: '高峰期满载率(%)',
+                                data: [6.25,12.5,13.75,17.5,26.25,40,47.5,56.25,61.25,71.25,80,52.5,48.75,30,13.75],
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: 'rgba(231, 76, 60, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: '平峰期满载率(%)',
+                                data: [10,11.25,12.5,13.75,16.25,22.5,23.75,26.25,28.75,31.25,28.75,13.75,13.75,11.25,8.75],
+                                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                                borderColor: 'rgba(46, 204, 113, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '满载率(%)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: ' '
+                                },
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 运行速度对比图表（使用真实数据）
+                const speedCtx = document.getElementById('speedChart').getContext('2d');
+                new Chart(speedCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['轨道大堰站(西行)-轨道大堰站(东行)', '轨道大堰站(东行)-毛线沟', '毛线沟-动物园', '动物园-杨家坪西郊', '杨家坪西郊-谢家湾', '谢家湾-鹅公岩南桥头', '鹅公岩南桥头-轨道海峡路', '轨道海峡路-海峡路', '海峡路-麦德龙', '麦德龙-海峡路口', '海峡路口-四公里', '四公里-五公里', '五公里-轨道六公里', '轨道六公里-六公里', '六公里-七公里'],
+                        datasets: [
+                            {
+                                label: '高峰期速度(km/h)',
+                                data: [24,22.96,12.64,13.91,21.84,25.37,31.61,36,46.36,33.84,17.91,12.55,13.28,23.66,29.43],
+                                backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                                borderColor: 'rgba(52, 152, 219, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: '平峰期速度(km/h)',
+                                data: [36,32.4,24.24,23.38,20.73,30.39,38.69,32.59,36,33.18,32.94,24.35,18.82,30.67,30.64],
+                                backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                                borderColor: 'rgba(155, 89, 182, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '运行速度(km/h)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '  '
+                                },
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 方案对比雷达图
+                const radarCtx = document.getElementById('radarChart').getContext('2d');
+                new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['服务性', '安全性', '经济性', '可持续性'],
+                        datasets: [
+                            {
+                                label: '方案一',
+                                data: [4.5, 4.3, 2.6, 3.6],
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                            },
+                            {
+                                label: '方案二',
+                                data: [3.0, 3.2, 3.95, 4.9],
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 5
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 初始渲染图表
+            document.addEventListener('DOMContentLoaded', renderCharts);
+            
+            // 窗口大小变化时重新渲染图表
+            window.addEventListener('resize', function() {
+                // 销毁所有图表实例
+                Chart.helpers.each(Chart.instances, function(instance) {
+                    instance.destroy();
+                });
+                // 重新渲染
+                renderCharts();
+            });
+        </script>
+    </div>
+</body>
+</html>
